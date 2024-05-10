@@ -7,6 +7,7 @@ import * as utils from "/home/kdog3682/2023/utils.js"
 // inoremap <silent> <buffer>' ""<left><C-R>=Eatchar('\s')<CR>
 // inoremap <silent> <buffer>" '<C-R>=Eatchar('\s')<CR>
 // inoreab <buffer> xyz foobar<left><C-R>=Eatchar('\s')<CR>
+// fix is ...
 
 
 const vFocus = {
@@ -31,13 +32,24 @@ const vMarked = (el, binding) => {
 const onClick = (index) => {
     selectedIndex.value = index
 }
-const list = [
-  { id: "1", label: "abigaileee",hidden:false,tags:[] },
-  { id: "2", label: "abby",hidden:false,tags:[] },
-  { id: "3", label: "car",hidden:false,tags:[] },
-  { id: "4", label: "can",hidden:false,tags:[] },
-  { id: "5", label: "dog",hidden:false,tags:[] },
+const labels = [
+    "abigaileee",
+    "abby",
+    "car",
+    "can",
+    "dog",
 ]
+const funcs = Object.keys(utils)
+const list = labels.map((label, i) => {
+    const item = {}
+    item.content = String(utils[funcs[i]])
+    item.hidden = false
+    item.filtered = false
+    item.tags = []
+    item.id = i + 1
+    item.label = label
+    return item
+})
 
 
 const fzf = new Fzf(list, {
@@ -52,9 +64,16 @@ function checkpoint(entry) {
     return entry.item.hidden == false
 }
 
-const onInput = () => {
-    entries.value = fzf.find(query.value).filter(checkpoint)
+const onInput = (val, oldval) => {
+    const baseMatches = fzf.find(query.value)
+    const matches = baseMatches.filter(checkpoint)
+    entries.value = matches
 }
+
+const numTotal = ref(list.length)
+const numMatched = computed(() => {
+    return list.length - entries.value.length
+})
 
 const selectedIndex = ref(0)
 const count = ref(0)
@@ -68,16 +87,32 @@ const message = ref('no message yet')
 const onEnter = () => {
     message.value = `enter was pressed at ${new Date}`
 }
-const actions = {
+const keyTrainActions = {
     escape: onEscape,
     enter: onEnter,
 }
 onMounted(async () => {
     // it is a syntax sugar to get things
     const cmd = 'a'
-    const items =  u.keyparse(cmd, query, actions)
-    await u.keytrain(items, query, actions)
-    incrementGlobalTag()
+    const items =  u.keyparse(cmd, query, keyTrainActions)
+    await u.keytrain(items, query, keyTrainActions)
+
+    // incrementGlobalTag()
+    const themeColors = {
+  '--color-base': 'black',           // Base text color for code blocks
+  '--color-comment': 'blue',        // For comments
+  '--color-keyword': 'black',        // Purple color used for keywords
+  '--color-string': 'black',         // Green color used for strings
+  '--color-type': 'green',           // Blue used for function names, types
+  '--color-name': 'red',           // Red used for variable names, tags
+  '--color-meta': '#de935f',           // Orange used for meta info, like numbers, preprocessor directives
+  '--color-section': 'blue',        // Aqua color
+  '--color-link': '#f0c674',           // Yellow used for links (hypothetically)
+  '--font-weight-normal': '400',       // Normal font weight
+  '--font-weight-bold': '700',         // Bold font weight
+  '--background-color': 'white',     // Background color for code blocks
+};
+    // u.setHighlightTheme(themeColors)
     // input.focus()
 })
 
@@ -178,12 +213,102 @@ async function logMessages(messages) {
 const selectGlobalTag = (tag) => {
     currentGlobalTag.value = tag
 }
+const opts = {
+    options: ['vert', 'horo']
+}
+function useToggle(opts) {
+    const status = ref('')
+    function toggle() {
+        status.value = utils.modularIncrement(opts.options, status.value)
+    }
+    toggle()
+    return {
+        status, toggle
+    }
+}
+const {status: vertOrHorozo, toggle: toggleVertOrHoro} = useToggle(opts)
+let baseActions = [
+    selectGlobalTag,
+    applyTagGlobally,
+    toggleVertOrHoro,
+]
+
+function fix(fn) {
+    if (utils.isFunction(fn)) {
+        return {
+            name: fn.name,
+            handler: fn,
+        }
+    }
+}
+const actions = reactive(baseActions.map(fix))
+
+const codeDisplayText = computed(() => {
+    const entry = entries.value[selectedIndex.value]
+    if (!entry) {
+        return 
+    }
+    return entry.item.content
+})
+
+const filters = ref([])
+function addFilter() {
+    console.log('adding filterrrrrrrrrrrrrrrrr')
+    const o = {
+        regex: '',
+        label: 'regex',
+        type: '',
+        options: ['identifier', 'body'],
+    }
+    filters.value.push(o)
+}
+function executeFilters(filter) {
+    const { type, regex } = filter
+    console.log({type, regex})
+}
+
+const profiles = ref([])
+function saveFilterProfile(label, filters) {
+    profiles.values.push({label, filters})
+}
+
+
+function computeTable(filters) {
+    const headers = ['type', 'regex']
+    const item = (filter) => {
+        return headers.map((header) => filter[header])
+    }
+
+    return {
+        columnHeaders: headers,
+        body: filters.map(callback)
+    }
+
+}
 </script><template lang='pug'>
+
+div.vert
     p.message message: {{message}}
 
-    button(@click = 'incrementGlobalTag') incrementGlobalTag    
+    button.submit(v-if = "numRemaining == 0" @click = 'submitResults')
 
-    button(@click = 'applyTagGlobally') applyTagGlobally    
+    // the current results
+    section
+        .partitions
+            .profile(v-for = 'p in profiles')
+
+        .amount-remaining
+            v-templater( value = 'there are still $numRemaining items remaining.')
+        
+        
+    .profiles
+        .profile(v-for = 'p in profiles')
+            v-tooltip(:label = 'p.label')
+                template(#content)
+                    v-table(:value = 'computeTable(p.filters)')
+    .buttons
+        .action-button(v-for= "action in actions")
+            button(@click = "action.handler" ) {{action.name}}
 
     ul.flex.tag-group
         span(
@@ -193,10 +318,8 @@ const selectGlobalTag = (tag) => {
                 @click = "selectGlobalTag(tag)"
         ) {{tag}}
 
-    div.label-group
-        label currentGlobalTag:
-        input(v-model='currentGlobalTag' placeholder = "placeholder tag")
-    
+    v-input(v-model = 'currentGlobalTag', label = 'Active Tag', pos = 'left')
+
     div.label-group
         label query input:
         input(
@@ -207,18 +330,45 @@ const selectGlobalTag = (tag) => {
             @keydown.esc="onEscape"
             placeholder = "press escape to clear"
         )
-    ul(v-if = "entries.length", 
-        tabindex="0"
-        @keydown = 'handleKeydown'
-    )
-        li(
-            :class="{ 'selected': index === selectedIndex }"
-            v-for = "entry, index in entries" :key = "entry.item")
 
-                div.space-between(@click = "onClick(index)")
-                    fzf-entry(v-bind = "entry")
-                    div.tags
-                        .tag( v-for = "tag in entry.item.tags" @click = "emitTagChange(tag)" :class = "tag + '-tag'" ) {{tag}}
+    div.filter-component.vert
+        ul
+            li.filter-selection-item(v-for = 'filter, index in filters')
+                v-input(v-model = 'filter.regex', :label = 'filter.label')
+                v-checkbox(v-model = 'filter.type', :options = 'filter.options')
+
+        div.vert
+            button.add-input(@click='addFilter') add filter
+            button.execute-filter(@click = 'executeFilters') executeFilter
+            
+    .fzf-container(:class = 'vertOrHorozo')
+        .left
+            .fzf-list
+                ul(v-if = "entries.length", 
+                    tabindex="0"
+                    @keydown = 'handleKeydown'
+                )
+                    li(
+                        :class="{ 'selected': index === selectedIndex }"
+                        v-for = "entry, index in entries" :key = "entry.item")
+                            div.space-between(@click = "onClick(index)")
+                                fzf-entry(v-bind = "entry")
+                                div.tags
+                                    .tag(
+                                        v-for = "tag in entry.item.tags"
+                                        @click = "emitTagChange(tag)"
+                                        :class = "tag + '-tag'"
+                                    ) {{tag}}
+                p(v-else) nothing to show
+
+            .entry-count {{numMatched}} / {{numTotal}}
+
+        .right(v-if = '1 + 1 == 2')
+            code-display(
+                :code = 'codeDisplayText'                           
+                 language = 'javascript'
+            )
+
     // pre.entries {{entries}}
     // div.count {{count}}
 </template>
@@ -290,5 +440,16 @@ button
         color: white
         font-weight: bold
         border: 0.5px solid black
-        
+
+.vert
+    display: flex
+    flex-direction: column
+.horo
+    display: flex
+
+.filter-selection-item
+    border: 0.5px solid black
+
+.filter-component
+    border: 0.5px solid black
 </style>

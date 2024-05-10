@@ -1,5 +1,12 @@
 <script setup>
 
+const green = 'green'
+const red = 'red'
+const orange = 'orange'
+const blue = 'blue'
+const black = 'black'
+const yellow = 'yellow'
+
 const props = defineProps({
   item: {
     type: Object,
@@ -19,8 +26,21 @@ const render = () => {
 
     function colorize(ch, i) {
         const hasKey = positions.has(i)
-        const className = hasKey ? 'fzf-labeled' : null
-        return h('span', {class: className}, ch)
+        const a = {
+            fontWeight: 700,
+            color: green,
+        }
+        /*
+            @doc
+            because there are other class effects, it is necessary to do the coloring via style to override previous class effects
+        */
+        const style = hasKey ? a : null
+        const opts = {
+            style
+        }
+        return h('span', opts, ch)
+        // const className = hasKey ? 'fzf-labeled' : null
+        // return h('span', {class: className}, ch)
     }
 
     const children = text.split('').map(colorize)

@@ -2,6 +2,7 @@ console.clear()
 
 
 export {
+setHighlightTheme,
     keyparse,
     getCaller5,
     keytrain,
@@ -58,4 +59,15 @@ function getCaller5() {
     })
     let [caller, file, line] = matches[startIndex + 2 ]
     return caller
+}
+
+
+
+function setHighlightTheme(o) {
+    const root = document.documentElement
+    function callback(k, v) {
+        const key = k.startsWith('--') ? k :`--${dashCase(k)}`
+        root.style.setProperty(key, v)
+    }
+    forEach(o, callback)
 }

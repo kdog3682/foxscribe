@@ -1,0 +1,75 @@
+:root
+  --color-base blue
+  --color-comment grey
+  --color-keyword green
+  --color-string orange
+  --color-type blue
+  --color-name red
+  --color-meta white
+  --color-section red
+  --color-link blue
+  --font-weight-normal 400
+  --font-weight-bold bold
+  --background-color white
+
+pre code
+    display block
+    overflow-x auto
+    padding 1em
+    color var(--color-base)
+    background var(--background-color)
+
+    code.hljs
+      padding 3px 5px
+
+    .hljs-subst
+    .hljs-type
+    .hljs-params
+    .hljs-emphasis
+      color var(--color-base)
+      font-style italic
+
+    .hljs-strong
+      font-weight var(--font-weight-normal)
+
+    .hljs-literal
+    .hljs-name
+    .hljs-number
+      color var(--color-name)
+      font-weight var(--font-weight-bold)
+
+    .hljs-comment
+    .hljs-quote
+      color var(--color-comment)
+
+    .hljs-selector-id
+    .hljs-template-variable
+    .hljs-title
+    .hljs-variable
+      color var(--color-section)
+      font-weight var(--font-weight-normal)
+
+    .hljs-keyword
+    .hljs-selector-class
+    .hljs-symbol
+      color var(--color-keyword)
+
+    .hljs-bullet
+    .hljs-string
+      color var(--color-string)
+
+    .hljs-section
+    .hljs-tag
+    .hljs-selector-tag
+      color var(--color-section)
+      font-weight var(--font-weight-bold)
+
+    .hljs-attribute
+    .hljs-built_in
+    .hljs-link
+    .hljs-regexp
+      color var(--color-link)
+
+    .hljs-meta
+      color var(--color-meta)
+      font-weight var(--font-weight-bold)
