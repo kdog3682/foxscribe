@@ -1,20 +1,36 @@
 <template lang="pug">
   div
-    table(v-if = 'columnHeaders && rowHeaders')
+    table.rows(v-if = 'rows')
+      tbody
+        tr(v-for="(row, rowIndex) in rows" :key="rowIndex")
+          th {{row[0]}}
+          td(v-for="(cell, colIndex) in row.slice(1)" :key="colIndex") {{ cell }}
+
+    table.columns(v-else-if = 'columns')
+      thead
+        tr
+          th(v-for="colHeader in columns[0]" :key="colHeader") {{ colHeader }}
+      tbody
+        tr(v-for="(row, rowIndex) in columns.slice(1)" :key="rowIndex")
+          td(v-for="(cell, colIndex) in row" :key="colIndex") {{ cell }}
+
+    table.both(v-else-if = 'columnHeaders && rowHeaders')
       thead
         tr
           th(v-for="colHeader in columnHeaders" :key="colHeader") {{ colHeader }}
       tbody
         tr(v-for="(row, rowIndex) in body" :key="rowIndex")
           td(v-for="(cell, colIndex) in row" :key="colIndex") {{ cell }}
-    table(v-else-if = 'columnHeaders')
+
+    table.columns(v-else-if = 'columnHeaders')
       thead
         tr
           th(v-for="colHeader in columnHeaders" :key="colHeader") {{ colHeader }}
       tbody
         tr(v-for="(row, rowIndex) in body" :key="rowIndex")
           td(v-for="(cell, colIndex) in row" :key="colIndex") {{ cell }}
-    table(v-else-if = 'rowheaders')
+
+    table.rows(v-else-if = 'rowheaders')
       tbody
         tr(v-for="(row, rowIndex) in body" :key="rowIndex")
             th {{rowHeaders[rowIndex]}}
@@ -23,7 +39,7 @@
 
 <script setup>
 
-const props = defineProps(['rowHeaders', 'columnHeaders', 'body'])
+const props = defineProps(['rowHeaders', 'columnHeaders', 'body', 'rows'])
 
 </script>
 

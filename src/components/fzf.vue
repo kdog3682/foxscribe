@@ -39,6 +39,7 @@ const labels = [
     "can",
     "dog",
 ]
+
 const funcs = Object.keys(utils)
 const list = labels.map((label, i) => {
     const item = {}
@@ -295,7 +296,9 @@ div.vert
     // the current results
     section
         .partitions
-            .profile(v-for = 'p in profiles')
+            .partition(v-for = 'p in partitions')
+                p.label
+                p.items
 
         .amount-remaining
             v-templater( value = 'there are still $numRemaining items remaining.')

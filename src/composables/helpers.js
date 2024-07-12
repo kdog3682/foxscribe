@@ -54,14 +54,11 @@ async function keytrain(items, query, actions) {
 function getCaller5() {
     const matches = getErrorStack()
     const startIndex = matches.findIndex(([name]) => {
-        const cname = name.replace(/Module./, '')
-        return cname == 'getCaller5'
+        return cname == 'Module.getCaller5'
     })
-    let [caller, file, line] = matches[startIndex + 2 ]
+    let [caller, file, line] = matches[startIndex + 2]
     return caller
 }
-
-
 
 function setHighlightTheme(o) {
     const root = document.documentElement

@@ -45,10 +45,16 @@ const render = () => {
 
     const children = text.split('').map(colorize)
     const opts = {
-        class: 'fzf-entry'
+        class: 'fzf-entry',
+        onClick() {
+            console.log('aaaaaaaaa')
+            emit('select')
+        }
     }
     return h('li', opts, children)
 }
+
+const emit = defineEmits(['select'])
 </script>
 
 <template lang = "pug">
@@ -70,5 +76,8 @@ const render = () => {
         border-radius: 5px
         border: 1px solid green
         padding: 5px
+            
+    .fzf-entry:hover
+        background: white
 </style>
 

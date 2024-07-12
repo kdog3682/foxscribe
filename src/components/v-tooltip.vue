@@ -16,7 +16,6 @@ const props = defineProps({
   },
 
   label: {
-    validator: (value) => ['north', 'east', 'south', 'west'].includes(value)
   },
   position: {
     type: String,

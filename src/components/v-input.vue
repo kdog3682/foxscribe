@@ -2,9 +2,12 @@
   div(:class="pos")
     label(v-if="label") {{label}}
     input(
+      ref = 'input'
       :type="type"
       :value="modelValue"
       @input="emitInput"
+      @keydown.enter="emitSubmit"
+      @keydown.escape="emitEscape"
       :placeholder="placeholder"
     )
 
@@ -16,7 +19,7 @@ import { defineProps, defineEmits } from 'vue'
 const props = defineProps({
   modelValue: {
     type: [String, Number],
-    required: true
+    required: false, 
   },
   type: {
     type: String,
@@ -38,13 +41,30 @@ const props = defineProps({
 })
 
 onMounted(() => {
-    console.log(props)
+    // console.log(props)
 })
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'submit', 'escape'])
+
+const emitEscape = (event) => {
+  emit('escape', event.target.value)
+}
+
+const emitSubmit = (event) => {
+  emit('submit', event.target.value)
+}
 
 const emitInput = (event) => {
   emit('update:modelValue', event.target.value)
 }
+
+
+const input = ref(null)
+const focus = (x) => {
+    input.value.focus()
+}
+defineExpose({
+    focus,
+})
 </script>
 
 <style lang="stylus" scoped>

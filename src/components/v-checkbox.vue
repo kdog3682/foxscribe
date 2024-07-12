@@ -19,10 +19,7 @@ const props = defineProps({
 })
 
 
-
-
-
-const emit = defineEmits(['update:modelValue']) // hi
+const emit = defineEmits(['update:modelValue'])
 const selectedOption = ref(props.modelValue)
 
 watch(
@@ -58,7 +55,4 @@ select
   border-radius: 4px
 
 </style>
-
-
-
 
