@@ -1,3 +1,6 @@
+App.vue
+.gitignore
+# because it == constantly changing with different things
 # Logs
 logs
 *.log

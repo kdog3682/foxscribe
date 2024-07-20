@@ -1,1 +1,2 @@
-<template lang = 'pug'>fzf</template>
+<!-- <template><fzf/></template> -->
+<template><file-explorer/></template>

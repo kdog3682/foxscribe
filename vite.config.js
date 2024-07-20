@@ -16,6 +16,7 @@ export default defineConfig({
         Components({
             dirs: [
                 "src/components",
+                "src/projects/file-explorer",
                 "src/layouts",
                 "src/pages",
             ],
